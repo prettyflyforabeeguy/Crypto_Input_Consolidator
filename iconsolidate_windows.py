@@ -337,7 +337,7 @@ class DimeConsolidator:
             else:
                 maxtxns = txncount
             self.num_of_txns = input(f"How many transactions would you like to combine? (max {str(maxtxns)}): ")
-            if self.num_of_txns == "" or int(self.num_of_txns) <= 0 or int(self.num_of_txns) > 27:
+            if self.num_of_txns == "" or int(self.num_of_txns) <= 0 or int(self.num_of_txns) > 26:
                 print("Invalid number of transactions provided!")
                 sys.exit(0)
             if self.unencrypted == True:

@@ -293,7 +293,8 @@ class DimeConsolidator:
             maxinput = 999999999
         jdata = self.getunspent(maxinput)
         self.max_txns = int(len(jdata))
-        print(f"You have {len(jdata) - 1} unspent transactions.")
+        txncount = len(jdata) - 1
+        print(f"You have {txncount} unspent transactions.")
         if (len(jdata) - 1) == 0:
             sys.exit(0)    
         # TODO: rewrite this to scale based on how many transactions exist or by how many the user specifies
@@ -330,8 +331,12 @@ class DimeConsolidator:
             else:
                 print("Finished!")
         else:
-            # Windows command line has a limitation on the number of characters so we cap inputs at 27.
-            self.num_of_txns = input(f"How many transactions would you like to combine? (max 27): ")
+            # Windows command line has a limitation on the number of characters so we cap inputs at 26.
+            if txncount >= self.num_of_txns:
+                maxtxns = self.num_of_txns
+            else:
+                maxtxns = txncount
+            self.num_of_txns = input(f"How many transactions would you like to combine? (max {str(maxtxns)}): ")
             if self.num_of_txns == "" or int(self.num_of_txns) <= 0 or int(self.num_of_txns) > 27:
                 print("Invalid number of transactions provided!")
                 sys.exit(0)

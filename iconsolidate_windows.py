@@ -21,7 +21,7 @@ class DimeConsolidator:
         self.hexoutput = ""
         self.passphrase = ""   # If you want you can hard code your passphrase.  Not recomended.  However it's useful for a large number of transactions.
         self.defaultCliPath = r'"C:\Program Files\Dimecoin\daemon"'  # Path where your cli.exe is located i.e C:\Program Files\Dimecoin\daemon
-        self.datadir = "-datadir=G:\CryptoCurrency\TESTING\dimecoin_2.1.0.1"   # Leave this blank if you're not using the -datadir argument. i.e -datadir=C:\Program Files\Dimecoin\Blockchain
+        self.datadir = ""   # Leave this blank if you're not using the -datadir argument. i.e -datadir=C:\Program Files\Dimecoin\Blockchain
         self.defaultCliExe = "dimecoin-cli.exe"         # the cli.exe file
         self.pathandCli = self.defaultCliPath + "\\" + self.defaultCliExe
         self.testnet = True

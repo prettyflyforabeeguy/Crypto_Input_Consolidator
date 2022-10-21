@@ -361,7 +361,7 @@ class DimeConsolidator:
                 else:
                     sys.exit(0)
             else:
-                print("Error something is wrong with this transaction.  Fee too small? Wallet unlock time expired? Try combining fewer inputs?  Please try again.")
+                print("Error something is wrong with this transaction. Fee too small? Wallet unlock time expired? Try combining fewer inputs?  Please try again.")
                 sys.exit(0)
 
     def main(self,jdata, wstatus, maxinput):

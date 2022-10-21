@@ -14,7 +14,7 @@ import time
 class DimeConsolidator:
     def __init__(self):
         self.dest_wallet = ""    # Add your destination wallet here
-        self.num_of_txns = 27    # don't change this number, windows command prompt has a character limitation. 
+        self.num_of_txns = 26    # don't change this number, windows command prompt has a character limitation. 
         self.max_txns = 0
         self.fee = 0
         self.txn_id = ""

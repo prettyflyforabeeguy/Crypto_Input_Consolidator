@@ -1,5 +1,5 @@
 #########################################################################
-##  DIMECOIN input consolidator for Windows v0.0.2                     ##
+##  DIMECOIN input consolidator for Windows v0.0.3                     ##
 ##  Created by Dalamar 9/3/2022                                        ##
 ##  This utility is intended for consolidating input                   ##
 ##  transactions.                                                      ##
@@ -9,22 +9,27 @@
 
 import os, sys
 import json
-import time
+import time, datetime
+import iconfig as _config
 
 class DimeConsolidator:
     def __init__(self):
-        self.dest_wallet = ""    # Add your destination wallet here
+        self._config_dict = _config.Config().config_dict
+        self.dest_wallet = self._config_dict.get('dest_wallet')
         self.num_of_txns = 22    # don't change this number, windows command prompt has an 8191 character limitation. 
         self.max_txns = 0
         self.fee = 0
         self.txn_id = ""
         self.hexoutput = ""
-        self.passphrase = ""   # If you want you can hard code your passphrase.  Not recomended.  However it's useful for a large number of transactions.
+        self.eternalLoop = self._config_dict.get('eternalLoop')
+        self.passphrase = self._config_dict.get('passphrase')  # If you want you can hard code your passphrase.  Not recomended.  However it's useful for a large number of transactions.
         self.defaultCliPath = r'"C:\Program Files\Dimecoin\daemon"'  # Path where your cli.exe is located i.e C:\Program Files\Dimecoin\daemon
-        self.datadir = ""   # Leave this blank if you're not using the -datadir argument. i.e -datadir=C:\Program Files\Dimecoin\Blockchain
-        self.defaultCliExe = "dimecoin-cli.exe"         # the cli.exe file
+        #self.defaultCliPath = self._config_dict.get('defaultCliPath')
+        self.datadir = r'"-datadir=C:\Program Files\Dimecoin\"'
+        #self.datadir = self._config_dict.get('datadir')  # Leave this blank if you're not using the -datadir argument. i.e -datadir=C:\Program Files\Dimecoin\Blockchain
+        self.defaultCliExe = self._config_dict.get('defaultCliExe')  # the cli.exe file
         self.pathandCli = self.defaultCliPath + "\\" + self.defaultCliExe
-        self.testnet = False
+        self.testnet = self._config_dict.get("testnet")
         self.unencrypted = False
         self.wstatus = False
 
@@ -213,12 +218,15 @@ class DimeConsolidator:
             lowamountjson = json.dumps(low_amount_list)
             self.log_output("unspent.json", lowamountjson, 'w+')
             jdata = self.read_json("unspent.json")
-            if len(jdata) <= 0:
+            if len(jdata) <= 0 and self.eternalLoop == False:
                 print(f"Failed to find any inputs with an amount below: {str(maxinput)}")
                 sys.exit(0)
         else:
-            print(f"Failed to find any inputs with an amount below: {str(maxinput)}")
-            sys.exit(0)
+            if self.eternalLoop == False:
+                print(f"Not enough inputs with an amount below: {str(maxinput)}.  Waiting to try again later.")
+            else:
+                print(f"Failed to find any inputs with an amount below: {str(maxinput)}")
+                sys.exit(0)
         return jdata
 
     def confirmation(self, info):
@@ -230,53 +238,67 @@ class DimeConsolidator:
 
     def startup(self):
         unlocktime = 60
-        cliPath = input("\nEnter the full path to your coin cli. i.e. C:\Program Files\Dimecoin\daemon (leave blank for default install path): ")
-        if cliPath == "":
-            cliPath = self.defaultCliPath
-            print(f"using: {self.defaultCliPath}")
-        else:
-            self.defaultCliPath = cliPath
-            print(f"using: {self.defaultCliPath}")
-
-        cliExe = input("Enter your cli .exe file name. i.e. dimecoin-cli.exe (leave blank for default exe file): ")
-        if cliExe == "":
-            cliExe = self.defaultCliExe
-            print(f"using: {self.defaultCliExe}")
-        else:
-            self.defaultCliExe = cliExe
-            print(f"using: {self.defaultCliExe}")
-
-        testnetEnabled = input("Will you be using testnet? (leave blank for Y): ")
-        if (testnetEnabled.upper() == "" or testnetEnabled.upper() == "Y"):
-            self.testnet = True
-            print(f"using: -testnet")
-        else:
-            self.testnet = False
-            print("*** WARNING *** USING PRODUCTION!!!")
-
-        rcv_wallet = input(f"Enter the destination wallet address.  When inputs are consolidated they'll need to be sent to yourself to a valid receiving address. Pres enter to use {self.dest_wallet}: ")
-        if rcv_wallet == "":
-            rcv_wallet = self.dest_wallet
-            if self.dest_wallet == "":
-                print("Error! No wallet provided.  Closing app!")
-                sys.exit(0)
-        else:
-            conf = self.confirmation(self.dest_wallet)
-            if conf == True:
-                print(f"using destination wallet: {self.dest_wallet}")
-                pass
+        cliPath = self._config_dict.get('defaultCliPath')
+        cliPath = self.defaultCliPath
+        if cliPath == None:
+            cliPath = input("\nEnter the full path to your coin cli. i.e. C:\Program Files\Dimecoin\daemon (leave blank for default install path): ")
+            if cliPath == "":
+                cliPath = self.defaultCliPath
             else:
-                self.dest_wallet = input("Enter the destination wallet address again. :")
+                self.defaultCliPath = cliPath
+        print(f"using cli path: {self.defaultCliPath}")
+
+        cliExe = self._config_dict.get('defaultCliExe')
+        cliExe = self.defaultCliExe
+        if cliExe == None:
+            cliExe = input("Enter your cli .exe file name. i.e. dimecoin-cli.exe (leave blank for default exe file): ")
+            if cliExe == "":
+                cliExe = self.defaultCliExe
+            else:
+                self.defaultCliExe = cliExe
+        print(f"using cli exe: {self.defaultCliExe}")
+
+        testnetEnabled = self._config_dict.get('testnet')
+        if testnetEnabled == True:
+            print(f"using: -testnet")
+        if testnetEnabled == False:
+            print("*** WARNING *** USING PRODUCTION!!!")
+        if testnetEnabled == None:
+            testnetEnabled = input("Will you be using testnet? (leave blank for Y): ")
+            if (testnetEnabled.upper() == "" or testnetEnabled.upper() == "Y"):
+                self.testnet = True
+                print(f"using: -testnet")
+            else:
+                self.testnet = False
+                print("*** WARNING *** USING PRODUCTION!!!")
+
+        rcv_wallet = self._config_dict.get('dest_wallet')
+        rcv_wallet = self.dest_wallet
+        if rcv_wallet == None:
+            rcv_wallet = input(f"Enter the destination wallet address.  When inputs are consolidated they'll need to be sent to yourself to a valid receiving address. Pres enter to use {self.dest_wallet}: ")
+            if rcv_wallet == "":
+                rcv_wallet = self.dest_wallet
+                if self.dest_wallet == "":
+                    print("Error! No wallet provided.  Closing app!")
+                    sys.exit(0)
+            else:
                 conf = self.confirmation(self.dest_wallet)
                 if conf == True:
+                    print(f"using destination wallet: {self.dest_wallet}")
                     pass
                 else:
-                    print("Error! Bad or no wallet provided.  Closing app!")
-                    sys.exit(0)
+                    self.dest_wallet = input("Enter the destination wallet address again. :")
+                    conf = self.confirmation(self.dest_wallet)
+                    if conf == True:
+                        pass
+                    else:
+                        print("Error! Bad or no wallet provided.  Closing app!")
+                        sys.exit(0)
+        print(f"using destination wallet: {self.dest_wallet}")
         
         dataFolder = self.defaultCliPath + "\\data"
         os.popen(f"mkdir {dataFolder}")
-        print(f"using: {dataFolder}")
+        print(f"using data dir: {dataFolder}")
 
         try:
             balance = self.getbalance()
@@ -287,85 +309,120 @@ class DimeConsolidator:
             print(f"{e}")
             sys.exit(0)
 
-        maxinput = input("What is the max input amount you'd like me to select for consolidation? (i.e. 10000): ")
-        if maxinput == "":
-            print("No input size prefrence provided, defaulting to include inputs up to 1 billion in size")
-            maxinput = 999999999
-        jdata = self.getunspent(maxinput)
-        self.max_txns = int(len(jdata))
-        txncount = len(jdata) - 1
-        print(f"You have {txncount} unspent transactions.")
-        if (len(jdata) - 1) == 0:
-            sys.exit(0)
-        if txncount > self.num_of_txns:    
-            wanttoloop = input("Do you want the program to loop using the info you've provided? (y/n): ")
-            wanttoloop = wanttoloop.upper()
-        else:
-            wanttoloop = "N"
-            
-        if wanttoloop == "Y":
-            loopmax = int(txncount/self.num_of_txns)          
-            loopqty = input(f"How many times would you like to loop this consolidation activity? (Max is {loopmax}): ")
-            if int(loopqty) <= 0 or int(loopqty) > int(loopmax) or int(loopqty) == "":
-                print("ERROR! Something is wrong with the loop number provided.")
+        maxinput = self._config_dict.get('minInputAmount')
+        if maxinput == None or maxinput == "":
+            maxinput = input("What is the max input amount you'd like me to select for consolidation? (i.e. 10000): ")
+            if maxinput == "":
+                print("No input size prefrence provided, defaulting to include inputs up to 1 billion in size")
+                maxinput = 999999999
+            jdata = self.getunspent(maxinput)
+            self.max_txns = int(len(jdata))
+            txncount = len(jdata) - 1
+            print(f"You have {txncount} unspent transactions.")
+            if (len(jdata) - 1) == 0:
                 sys.exit(0)
-            else: 
-                print(f"Okay, looping {loopqty} times!")
-                if self.passphrase == "":
-                    wstatus = self.get_wallet_info()
-                else:
-                    # Using unlocktime to scale how long to unlock the wallet based on number of inputs being consolidated.
-                    # The wallet needs to remain unlocked for the duration of the consolidation cycle.
-                    unlocktime = int(loopqty) * 60
-                    self.unlock_wallet(self.passphrase, unlocktime)
-                    wstatus = True
-                    
-                for x in range(int(loopqty)):
-                    print(f"Starting loop number {x+1} of {str(loopqty)}")
-                    self.num_of_txns = 22
-                    self.main(jdata, wstatus, maxinput)
-                    self.txn_id = self.send_txn(str(self.hexoutput['hex']))
-                    if self.txn_id != "":
-                        print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
-                        time.sleep(.25)
-                
-                print("Finished!")
-        else:
-            unlocktime = 60
-            # Windows command line has a 8191 character limitation so we cap combinable inputs at 22.
-            if txncount >= self.num_of_txns:
-                maxtxns = self.num_of_txns
+            if txncount > self.num_of_txns:    
+                wanttoloop = input("Do you want the program to loop using the info you've provided? (y/n): ")
+                wanttoloop = wanttoloop.upper()
             else:
-                maxtxns = txncount
+                wanttoloop = "N"
             
-            self.num_of_txns = input(f"How many transactions would you like to combine? (max {str(maxtxns)}): ")
-            if self.num_of_txns == "" or int(self.num_of_txns) <= 0 or int(self.num_of_txns) > maxtxns:
-                print("Invalid number of transactions provided!")
-                sys.exit(0)
-
-            if self.unencrypted == True:
-                self.wstatus = True
-            elif self.passphrase == "" and self.wstatus == False:
-                self.wstatus = self.get_wallet_info()
-            else:
-                self.unlock_wallet(self.passphrase, unlocktime)
-                self.wstatus = True
-
-            self.main(jdata, self.wstatus, maxinput)
-
-            go = input("Make sure everything looks correct.\nProceed? y/n: ")
-            if go.lower() == "y":
-                self.txn_id = self.send_txn(str(self.hexoutput['hex']))
-            if self.txn_id != "":
-                print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
-                view = input("View this transactions y/n: ")
-                if view.lower() == "y":
-                    self.view_txn(self.txn_id)
-                else:
+            if wanttoloop == "Y":
+                loopmax = int(txncount/self.num_of_txns)          
+                loopqty = input(f"How many times would you like to loop this consolidation activity? (Max is {loopmax}): ")
+                if int(loopqty) <= 0 or int(loopqty) > int(loopmax) or int(loopqty) == "":
+                    print("ERROR! Something is wrong with the loop number provided.")
                     sys.exit(0)
+                else: 
+                    print(f"Okay, looping {loopqty} times!")
+                    if self.passphrase == "":
+                        wstatus = self.get_wallet_info()
+                    else:
+                        # Using unlocktime to scale how long to unlock the wallet based on number of inputs being consolidated.
+                        # The wallet needs to remain unlocked for the duration of the consolidation cycle.
+                        unlocktime = int(loopqty) * 60
+                        self.unlock_wallet(self.passphrase, unlocktime)
+                        wstatus = True
+                    
+                    for x in range(int(loopqty)):
+                        print(f"Starting loop number {x+1} of {str(loopqty)}")
+                        self.num_of_txns = 22
+                        self.main(jdata, wstatus, maxinput)
+                        self.txn_id = self.send_txn(str(self.hexoutput['hex']))
+                        if self.txn_id != "":
+                            print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
+                            time.sleep(.25)
+                
+                    print("Finished!")
             else:
-                print("Error something is wrong with this transaction. Fee too small? Wallet unlock time expired? Try combining fewer inputs?  Please try again.")
+                unlocktime = 60
+                # Windows command line has a 8191 character limitation so we cap combinable inputs at 22.
+                if txncount >= self.num_of_txns:
+                    maxtxns = self.num_of_txns
+                else:
+                    maxtxns = txncount
+            
+                self.num_of_txns = input(f"How many transactions would you like to combine? (max {str(maxtxns)}): ")
+                if self.num_of_txns == "" or int(self.num_of_txns) <= 0 or int(self.num_of_txns) > maxtxns:
+                    print("Invalid number of transactions provided!")
+                    sys.exit(0)
+
+                if self.unencrypted == True:
+                    self.wstatus = True
+                elif self.passphrase == "" and self.wstatus == False:
+                    self.wstatus = self.get_wallet_info()
+                else:
+                    self.unlock_wallet(self.passphrase, unlocktime)
+                    self.wstatus = True
+
+                self.main(jdata, self.wstatus, maxinput)
+
+                go = input("Make sure everything looks correct.\nProceed? y/n: ")
+                if go.lower() == "y":
+                    self.txn_id = self.send_txn(str(self.hexoutput['hex']))
+                if self.txn_id != "":
+                    print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
+                    view = input("View this transactions y/n: ")
+                    if view.lower() == "y":
+                        self.view_txn(self.txn_id)
+                    else:
+                        sys.exit(0)
+                else:
+                    print("Error something is wrong with this transaction. Fee too small? Wallet unlock time expired? Try combining fewer inputs?  Please try again.")
+                    sys.exit(0)
+        else:
+            # Loop whenever input quantity reaches maxinputs
+            if self.eternalLoop == True:
+                while True:
+                    jdata = self.getunspent(maxinput)
+                    self.max_txns = int(len(jdata))
+                    txncount = len(jdata) - 1
+                    print(f"You have {txncount} unspent transactions less than {maxinput}.")
+                    if txncount >= 22:
+                        # unlock wallet
+                        if self.unencrypted == True:
+                            self.wstatus = True
+                        elif self.passphrase == "" and self.wstatus == False:
+                            self.wstatus = self.get_wallet_info()
+                        else:
+                            self.unlock_wallet(self.passphrase, unlocktime)
+                            self.wstatus = True
+                 
+                        self.main(jdata, self.wstatus, maxinput)
+                        self.txn_id = self.send_txn(str(self.hexoutput['hex']))
+                        if self.txn_id != "":
+                            print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
+                            time.sleep(.25)
+                    else:
+                        waittime = self._config_dict.get('checkfrequency')
+                        waittime = int(waittime) * 60
+                        print(datetime.datetime.now())
+                        print(f"Waiting {(waittime / 60)} minute(s) until there are at least {self.num_of_txns} unspent transactions before checking again.")
+                        time.sleep(int(waittime))
+            else:
+                print("ERROR! There is a config problem.  Did you fill out the config.json?")
                 sys.exit(0)
+        
 
     def main(self,jdata, wstatus, maxinput):
         unlocktime = 60

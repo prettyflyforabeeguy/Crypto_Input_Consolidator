@@ -11,7 +11,7 @@ Usage:
 python3 iconsolidate.py
 
 
-If using the config/config_example.json:
+If using the config_example.json:
 Working with windows paths and escape characters has been overly complicated.  For now the simple work around is:
 A. If your dimecoin path has any spaces in it, ie C:\Program Files  you'll need to put the path info in the iconsolidate_windows.py (not in the .json)
 B. If your dimecoin path does NOT have spaces in it, feel free to retain all paths in the .json.  You'll also need to comment out lines 26 and 28 and uncomment lines 27 and 29.

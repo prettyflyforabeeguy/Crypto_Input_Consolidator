@@ -351,7 +351,7 @@ class DimeConsolidator:
                         self.txn_id = self.send_txn(str(self.hexoutput['hex']))
                         if self.txn_id != "":
                             print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
-                            time.sleep(.25)
+                            time.sleep(1)
                 
                     print("Finished!")
             else:

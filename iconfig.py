@@ -1,11 +1,11 @@
-# Extract settings in ./config/config.json
+# Extract settings in config.json
 # Variablize every setting for individual use.
 
 import json
 
 class Config():
     def __init__(self):
-        self.config_file = 'config\config_example.json'   # 'config\config_example.json; for windows but for linux change this to './config/config_example.json
+        self.config_file = 'config_example.json'   # 'config\config_example.json; for windows but for linux change this to './config/config_example.json
         self.config_dict = {}
         self.read_configjson()
 

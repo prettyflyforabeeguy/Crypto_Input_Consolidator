@@ -23,9 +23,9 @@ class DimeConsolidator:
         self.hexoutput = ""
         self.eternalLoop = self._config_dict.get('eternalLoop')
         self.passphrase = self._config_dict.get('passphrase')  # If you want you can hard code your passphrase.  Not recomended.  However it's useful for a large number of transactions.
-        self.defaultCliPath = r'"C:\Program Files\Dimecoin\daemon"'  # Path where your cli.exe is located i.e C:\Program Files\Dimecoin\daemon
+        self.defaultCliPath = r'"D:\\Crypto_Testing"'  # Path where your cli.exe is located i.e C:\Program Files\Dimecoin\daemon
         #self.defaultCliPath = self._config_dict.get('defaultCliPath')
-        self.datadir = r'"-datadir=C:\Program Files\Dimecoin\"'
+        self.datadir = r'"-datadir=D:\\Crypto_Testing\\.dimecoin"'
         #self.datadir = self._config_dict.get('datadir')  # Leave this blank if you're not using the -datadir argument. i.e -datadir=C:\Program Files\Dimecoin\Blockchain
         self.defaultCliExe = self._config_dict.get('defaultCliExe')  # the cli.exe file
         self.pathandCli = self.defaultCliPath + "\\" + self.defaultCliExe
@@ -50,6 +50,11 @@ class DimeConsolidator:
             os.close(fd)
         except:
             print("Failed to write to ./data")
+
+    def logger(self,fname,data):
+        print("Updating transaction.log...")
+        with open(fname, 'a') as out:
+            out.write(data)
 
     def read_json(self,filename):
         # Retrieve json data from a file
@@ -351,6 +356,9 @@ class DimeConsolidator:
                         self.txn_id = self.send_txn(str(self.hexoutput['hex']))
                         if self.txn_id != "":
                             print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
+                            timestamp = datetime.datetime.now()
+                            print(timestamp)
+                            self.logger("transaction.log", str(timestamp) + ", " + self.txn_id)
                             time.sleep(1)
                 
                     print("Finished!")
@@ -382,6 +390,9 @@ class DimeConsolidator:
                     self.txn_id = self.send_txn(str(self.hexoutput['hex']))
                 if self.txn_id != "":
                     print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
+                    timestamp = datetime.datetime.now()
+                    print(timestamp)
+                    self.logger("transaction.log", str(timestamp) + ", " + self.txn_id)
                     view = input("View this transactions y/n: ")
                     if view.lower() == "y":
                         self.view_txn(self.txn_id)
@@ -412,6 +423,9 @@ class DimeConsolidator:
                         self.txn_id = self.send_txn(str(self.hexoutput['hex']))
                         if self.txn_id != "":
                             print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
+                            timestamp = datetime.datetime.now()
+                            print(timestamp)
+                            self.logger("transaction.log", str(timestamp) + ", " + self.txn_id)
                             time.sleep(.25)
                     else:
                         waittime = self._config_dict.get('checkfrequency')
@@ -423,7 +437,7 @@ class DimeConsolidator:
                 print("ERROR! There is a config problem.  Did you fill out the config.json? Is eternalLoop set to true?")
                 sys.exit(0)
         
-   def main(self,jdata, wstatus, maxinput):
+    def main(self,jdata, wstatus, maxinput):
         unlocktime = 60
         jdata = self.getunspent(maxinput)
         print(f"You have {len(jdata) - 1} unspent transactions.")

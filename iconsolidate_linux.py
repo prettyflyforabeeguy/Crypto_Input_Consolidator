@@ -49,7 +49,11 @@ class DimeConsolidator:
         except:
             print("Failed to write to /data")
 
-
+    def logger(self,fname,data):
+        print("Updating transaction.log...")
+        with open(fname, 'a') as out:
+            out.write(data)
+            
     def read_json(self,filename):
         try:
             with open(filename) as data_file:
@@ -109,7 +113,6 @@ class DimeConsolidator:
         total = float(sum) - float(fee)
         print(f"total amount(s) {sum} minus {str(fee)} fee = {str(total)}")
         return total
-
 
     def create_txn(self,txn_list_noamnt, totalamnt):
         wallet_amnt = {self.dest_wallet:totalamnt}
@@ -338,7 +341,7 @@ class DimeConsolidator:
                             print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
                             timestamp = datetime.datetime.now()
                             print(timestamp)
-                            self.log_output("transaction.log", str(timestamp) + ", " + self.txn_id, 'a')
+                            self.logger("transaction.log", str(timestamp) + ", " + self.txn_id)
                             time.sleep(1)
                 
                     print("Finished!")
@@ -372,7 +375,7 @@ class DimeConsolidator:
                     print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
                     timestamp = datetime.datetime.now()
                     print(timestamp)
-                    self.log_output("transaction.log", str(timestamp) + ", " + self.txn_id, 'a')
+                    self.logger("transaction.log", str(timestamp) + ", " + self.txn_id)
                     view = input("View this transactions y/n: ")
                     if view.lower() == "y":
                         self.view_txn(self.txn_id)
@@ -409,7 +412,7 @@ class DimeConsolidator:
                             print(f"********** SUCCESS! **********\nTransaction id: {self.txn_id}")
                             timestamp = datetime.datetime.now()
                             print(timestamp)
-                            self.log_output("transaction.log", str(timestamp) + ", " + self.txn_id, 'a')
+                            self.logger("transaction.log", str(timestamp) + ", " + self.txn_id)
                             time.sleep(.25)
                     else:
                         waittime = self._config_dict.get('checkfrequency')

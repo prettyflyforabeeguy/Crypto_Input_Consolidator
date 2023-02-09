@@ -5,7 +5,7 @@ import json
 
 class Config():
     def __init__(self):
-        self.config_file = 'config_example.json'   # 'config\config_example.json; for windows but for linux change this to './config/config_example.json
+        self.config_file = 'config.json'   # This file contains all the default settings for the application to run.  See examples for more details.
         self.config_dict = {}
         self.read_configjson()
 

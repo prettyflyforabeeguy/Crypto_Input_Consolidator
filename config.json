@@ -4,8 +4,8 @@
     "dest_wallet": "",
     "datadir": "",
     "defaultCliPath": "",
-    "defaultCliExe": "dimecoin-cli.exe",
-    "minInputAmount": 10000,
-    "eternalLoop": true,
+    "defaultCliExe": "",
+    "minInputAmount": "",
+    "eternalLoop": false,
     "checkfrequency": 240
 } 

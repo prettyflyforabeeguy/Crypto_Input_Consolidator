@@ -1,0 +1,11 @@
+{
+    "testnet": true,                                                        <------- REQUIRED FIELD set this to false if using production.
+    "passphrase": "abc123",                                                 <------- OPTIONAL FIELD you'll be asked for your passphrase this is left blank
+    "dest_wallet": "7KEfCcJ2cMkSb25xpJP8bVUXd8xffoWWb2",                    <------- REQUIRED FIELD you'll be asked for a destination wallet to send consolidated coins to if this is left blank.
+    "datadir": "",                                                          <------- Not used This parameter must be specified in the iconsolidate_windows.py line 28 ie r'"-datadir=C:\Program Files\Dimecoin\"'
+    "defaultCliPath": "",                                                   <------- Not Used This parameter must be specified in the iconsolidate_windows.py line 26 ie r'"c:\Program Files\Dimecoin\daemon"'
+    "defaultCliExe": "dimecoin-cli.exe",                                    <------- REQUIRED FIELD this is the name of your -cli executable.
+    "minInputAmount": 1000000,                                              <------- REQUIRED FIELD ONLY if you're using eternal loop, if not using the loop, set this to empty double quotes ""
+    "eternalLoop": true,                                                    <------- REQUIRED FIELD ONLY if you're using eternal loop, if not using the loop, set this to false
+    "checkfrequency": 240                                                   <------- REQUIRED FIELD ONLY if you're using eternal loop, if not using the loop, this field is ignored.
+} 

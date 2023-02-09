@@ -1,0 +1,11 @@
+{
+    "testnet": true,                                          <------- REQUIRED FIELD set this to false if using production.
+    "passphrase": "abc123",                                   <------- OPTIONAL FIELD you'll be asked for your passphrase this is left blank
+    "dest_wallet": "7KEfCcJ2cMkSb25xpJP8bVUXd8xffoWWb2",      <------- REQUIRED FIELD you'll be asked for a destination wallet to send consolidated coins to if this is left blank.
+    "datadir": "",                                            <------- OPTIONAL FIELD leave this blank if not using -datadir, otherwise the syntax here is specific i.e. "-datadir=/home/somefolder/somefolder"
+    "defaultCliPath": "/home/pi/dimecoin/src",                <------- REQUIRED FIELD this field needs to be the path to your -cli executable  .           
+    "defaultCliExe": "./dimecoin-cli",                        <------- REQUIRED FIELD this is the name of your -cli executable.
+    "minInputAmount": 100000,                                 <------- REQUIRED FIELD ONLY if you're using eternal loop, if not using the loop, set this to empty double quotes ""
+    "eternalLoop": true,                                      <------- REQUIRED FIELD ONLY if you're using eternal loop, if not using the loop, set this to false 
+    "checkfrequency": 240                                     <------- REQUIRED FIELD ONLY if you're using eternal loop, if not using the loop, this field is ignored.
+} 

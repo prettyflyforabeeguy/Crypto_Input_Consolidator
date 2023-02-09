@@ -420,22 +420,20 @@ class DimeConsolidator:
                         print(f"Waiting {(waittime / 60)} minute(s) until there are at least {self.num_of_txns} unspent transactions before checking again.")
                         time.sleep(int(waittime))
             else:
-                print("ERROR! There is a config problem.  Did you fill out the config.json?")
+                print("ERROR! There is a config problem.  Did you fill out the config.json? Is eternalLoop set to true?")
                 sys.exit(0)
         
-
-    def main(self,jdata, wstatus, maxinput):
+   def main(self,jdata, wstatus, maxinput):
         unlocktime = 60
         jdata = self.getunspent(maxinput)
         print(f"You have {len(jdata) - 1} unspent transactions.")
         if int(self.num_of_txns) < 10:
             self.fee = 0.01
         else:
-            self.fee = int(self.num_of_txns) * 0.0025
+            self.fee = int(self.num_of_txns) * 0.0015
 
         if int(self.num_of_txns) > 0 and int(self.num_of_txns) < self.max_txns:
             txn_list_amnt, txn_list_noamnt = self.consolidate_txns(jdata,int(self.num_of_txns))
-
         else:
             print("Invalid number of transactions!")
             sys.exit(0)
@@ -445,18 +443,16 @@ class DimeConsolidator:
         print(f"Generating Transaction Hex Code...")
 
         # Need to unlock wallet before txn can be signed
-        if self.unencrypted == True:
-            print("Wallet unencrypted, no passphrase needed...")
-        else:
-            if self.passphrase == "" or wstatus == False: #or self.unencrypted == False:
-                print("We must unlock your wallet to sign the transaction.")
-                self.passphrase = input("Enter your wallet passphrase:")
-                self.unlock_wallet(self.passphrase, unlocktime)
+        if self.passphrase == "" or wstatus == False:
+            print("We must unlock your wallet to sign the transaction.")
+            self.passphrase = input("Enter your wallet passphrase:")
+            self.unlock_wallet(self.passphrase, unlocktime)
 
         print("Building transaction...")
         self.hexoutput = self.sign_txn(txn_hex_code)
         #print(self.hexoutput)
         print("Generating your Signed Hex Output...")
+
 
 if __name__ == '__main__':
     _dc = DimeConsolidator()

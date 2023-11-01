@@ -45,8 +45,12 @@ class MNEstimator:
         blocktemplate_list = blocktemplate.read()
         btjson = json.loads(blocktemplate_list)
         # Extract the current block reward    
-        blockreward = btjson["coinbasevalue"]
-        blockreward = blockreward * .00001
+        mndata = btjson["masternode"]
+        mndict = {}
+        for i in mndata:
+            mndict.update(i)
+        mnamount = mndict["amount"]
+        blockreward = int(mnamount) * .00001
         #print(str(blockreward))
 
         return blockreward
@@ -63,11 +67,18 @@ class MNEstimator:
             a = .45        
 
         reward_total = (int(n)/t)*r*int(b)*float(a)
-
-        print(f"If you operate {n} masternode(s), there is a total of {t} enabled masternode(s), the current block reward is {r}, the average daily blocks is {b}, and the average masternode payment percent is {a * 100}%")
+        plus5 = (float(reward_total) * 0.05) + float(reward_total)
+        minus5 = float(reward_total) - (float(reward_total) * 0.05)
+        print(f"If you operate {n} masternode(s), there is a total of {t} enabled masternode(s), the current block reward is {r}, the average daily blocks is {b}, and the average masternode payment percent is {float(a) * 100}%")
         print(f"({n}/{t}) * {r} * {b} * {a}% = {reward_total}")
         reward_total = "{:,}".format(reward_total)
+        plus5 = "{:,}".format(plus5)
+        minus5 = "{:,}".format(minus5)
+
         print(f"The total ESTIMATED daily masternode reward is: {reward_total}")
+        print("Variance for fluctuating data + or - 5%:")
+        print(f"Estimate plus 5%: {plus5}  minus 5%: {minus5}")
+
 
     def startup(self):
         n = input("How many master nodes do you plan to operate? (Leave blank for default of 1): ")
